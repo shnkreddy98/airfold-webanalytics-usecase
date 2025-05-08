@@ -1,0 +1,20 @@
+name: web_events
+cols:
+  user_id: Int32
+  session_id: String
+  timestamp: DateTime
+  page_url: String
+  referrer: String
+  campaign: String
+  duration: Int32
+  conversion_flag: Boolean
+  device_type: String
+  browser: String
+  city: String
+  landing_page: String
+  exit_page: String
+  session_duration: Int32
+  is_new_user: Boolean
+settings:
+  engine: ReplacingMergeTree()
+  order_by: "`timestamp`"
