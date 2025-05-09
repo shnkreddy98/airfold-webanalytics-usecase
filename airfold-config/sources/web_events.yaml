@@ -5,7 +5,7 @@ cols:
   timestamp: DateTime
   page_url: String
   referrer: String
-  campaign: String
+  campaign: Nullable(String)
   duration: Int32
   conversion_flag: Boolean
   device_type: String

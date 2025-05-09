@@ -5,7 +5,7 @@ import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
 
-num_rows = 100_000_000  # 100M rows
+num_rows = 50_000_000  # 100M rows
 batch_size = 1_000_000
 datadir = "data"
 if not os.path.exists(datadir):
@@ -16,8 +16,8 @@ def generate_batch(n):
         'user_id': np.random.randint(1, 10_000_000, size=n),
         'session_id': [fake.uuid4() for _ in range(n)],
         'timestamp': pd.to_datetime(np.random.randint(
-            pd.Timestamp('2024-01-01').value // 10**9,
-            pd.Timestamp('2024-06-01').value // 10**9,
+            pd.Timestamp('2023-01-01').value // 10**9,
+            pd.Timestamp('2024-12-31').value // 10**9,
             size=n), unit='s'),
         'page_url': np.random.choice(['/home', '/pricing', '/signup', '/blog', '/contact'], size=n),
         'referrer': np.random.choice(['google.com', 'facebook.com', 'twitter.com', 'direct'], size=n),
@@ -39,8 +39,10 @@ if __name__ == "__main__":
     # Write in chunks to Parquet
     for i in range(0, num_rows, batch_size):
         batch = generate_batch(batch_size)
-        table = pa.Table.from_pandas(batch)
+        
+        # table = pa.Table.from_pandas(batch)
 
-        filename = os.path.join(datadir, f'web_events_{i//batch_size}.parquet')
-        pq.write_table(table, filename)
+        filename = os.path.join(datadir, f'web_events_{i//batch_size}.csv')
+        # pq.write_table(table, filename)
+        batch.to_csv(filename, index=False)
         print(f'Wrote batch {i // batch_size + 1}')

@@ -174,3 +174,4 @@ cython_debug/
 .pypirc
 .webanalytics
 data/*
+working_files/*

@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: worker
+spec:
+  serviceName: "worker"
+  replicas: 30
+  selector:
+    matchLabels:
+      app: worker
+  template:
+    metadata:
+      labels:
+        app: worker
+    spec:
+      containers:
+        - name: worker
+          image: shnkreddy/airfold-webanalytics-ingest:latest
+          volumeMounts:
+            - name: app-data
+              mountPath: /app/data
+  volumeClaimTemplates:
+    - metadata:
+        name: app-data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 10Gi
