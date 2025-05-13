@@ -1,0 +1,19 @@
+name: mv_session_summary
+nodes:
+  - rollup:
+      sql: |
+        SELECT
+          session_id,
+          user_id,
+          min(timestamp) AS session_start,
+          max(timestamp) AS session_end,
+          max(session_duration) AS session_duration,
+          max(conversion_flag) AS converted,
+          count() AS pageviews,
+          max(is_new_user) AS is_new
+        FROM web_events
+        GROUP BY session_id, user_id
+to: session_metrics
+refresh:
+  strategy: replace
+  interval: EVERY 1 MONTH

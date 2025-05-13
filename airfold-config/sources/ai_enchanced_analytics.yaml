@@ -1,0 +1,49 @@
+name: web_events_enhanced
+ai_cols:
+  - name: user_intent
+    type: Enum('Purchase', 'Research', 'Support', 'Browsing')
+    description: Determines the primary intent of the user based on their browsing pattern.
+    default_value: '"Browsing"'
+    using:
+      - page_url
+      - page_sequence
+      - duration
+      - conversion_flag
+
+  - name: user_engagement_score
+    type: Float32
+    description: Calculates an engagement score from 0-10 based on session duration, pages visited, and interactions.
+    default_value: "5.0"
+    using:
+      - duration
+      - session_duration
+      - conversion_flag
+
+  - name: bounce_classification
+    type: Enum('True Bounce', 'Short Visit', 'Engaged Visit')
+    description: Classifies the session as a bounce (single page, left quickly), short visit, or engaged visit.
+    default_value: '"Short Visit"'
+    using:
+      - session_duration
+      - duration
+      - is_landing_page
+      - is_exit_page
+      - page_url
+
+cols:
+  user_id: Int64
+  session_id: String
+  timestamp: DateTime
+  page_url: String
+  page_sequence: Int8
+  is_landing_page: Boolean
+  is_exit_page: Boolean
+  referrer: Nullable(String)
+  campaign: Nullable(String)
+  duration: Int32
+  conversion_flag: Boolean
+  device_type: String
+  browser: String
+  city: String
+  is_new_user: Boolean
+  session_duration: Int32

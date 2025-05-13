@@ -1,0 +1,9 @@
+name: campaign_metrics
+cols:
+  campaign: Nullable(String)
+  total_sessions: UInt64
+  total_conversions: UInt64
+  unique_users: UInt64
+settings:
+  engine: MergeTree()
+  order_by: "`total_sessions`"

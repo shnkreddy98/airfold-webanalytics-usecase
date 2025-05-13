@@ -1,0 +1,14 @@
+name: top_converting_campaigns
+nodes:
+  - node1:
+      sql: |
+        SELECT
+          campaign,
+          sum(total_conversions) AS conversions,
+          sum(unique_users) AS users,
+          round(sum(total_conversions)/sum(unique_users), 3) AS cv_per_user
+        FROM campaign_metrics
+        GROUP BY campaign
+        ORDER BY conversions DESC
+        LIMIT 10
+publish: top_converting_campaigns

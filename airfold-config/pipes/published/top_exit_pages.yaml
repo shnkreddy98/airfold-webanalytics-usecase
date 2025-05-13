@@ -1,0 +1,12 @@
+name: top_exit_pages
+nodes:
+  - node1:
+      sql: |
+        SELECT
+          exit_page,
+          count(*) AS sessions
+        FROM page_funnels
+        GROUP BY exit_page
+        ORDER BY sessions DESC
+        LIMIT 10
+publish: top_exit_pages

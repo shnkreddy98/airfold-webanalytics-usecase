@@ -1,0 +1,17 @@
+name: mv_daily_traffic
+nodes:
+  - aggregate:
+      sql: |
+        SELECT
+          toDate(timestamp) AS event_date,
+          city,
+          device_type,
+          COUNT() AS pageviews,
+          COUNTIf(conversion_flag = 1) AS conversions,
+          COUNTIf(is_new_user = 1) AS new_users
+        FROM web_events
+        GROUP BY event_date, city, device_type
+to: daily_traffic_metrics
+refresh:
+  strategy: append
+  interval: EVERY 1 MONTH

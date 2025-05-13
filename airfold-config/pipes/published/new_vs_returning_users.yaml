@@ -1,0 +1,11 @@
+name: new_vs_returning_users
+nodes:
+  - node1:
+      sql: |
+        SELECT
+          is_new,
+          count(*) AS sessions,
+          sum(converted) AS conversions
+        FROM session_metrics
+        GROUP BY is_new
+publish: new_vs_returning_users

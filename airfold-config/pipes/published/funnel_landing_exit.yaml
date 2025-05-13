@@ -1,0 +1,12 @@
+name: funnel_landing_exit
+nodes:
+  - node1:
+      sql: |
+        SELECT
+          landing_page,
+          exit_page,
+          count(*) AS sessions
+        FROM page_funnels
+        GROUP BY landing_page, exit_page
+        ORDER BY sessions DESC
+publish: funnel_landing_exit

@@ -1,0 +1,13 @@
+name: session_metrics
+cols:
+  session_id: String
+  user_id: Int64
+  session_start: DateTime
+  session_end: DateTime
+  session_duration: Int32
+  converted: Boolean
+  pageviews: UInt64
+  is_new: Boolean
+settings:
+  engine: MergeTree()
+  order_by: "`session_id`"

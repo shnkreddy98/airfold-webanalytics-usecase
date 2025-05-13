@@ -1,0 +1,10 @@
+name: session_duration_distribution
+nodes:
+  - node1:
+      sql: |
+        SELECT
+          device,
+          histogram(session_duration) AS duration_bins
+        FROM session_metrics
+        GROUP BY device
+publish: session_duration_distribution

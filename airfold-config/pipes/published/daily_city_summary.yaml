@@ -1,0 +1,14 @@
+name: daily_city_summary
+nodes:
+  - summary:
+      sql: |
+        SELECT
+          event_date,
+          city,
+          sum(pageviews) AS total_views,
+          sum(conversions) AS total_conversions,
+          round(sum(conversions)/sum(pageviews), 3) AS conversion_rate
+        FROM daily_traffic_metrics
+        GROUP BY event_date, city
+        ORDER BY event_date DESC
+publish: daily_city_summary

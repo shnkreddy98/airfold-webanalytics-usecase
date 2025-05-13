@@ -1,0 +1,11 @@
+name: daily_traffic_metrics
+cols:
+  event_date: Date
+  city: String
+  device_type: String
+  pageviews: UInt64
+  conversions: UInt64
+  new_users: UInt64
+settings:
+  engine: MergeTree()
+  order_by: "`event_date`"
