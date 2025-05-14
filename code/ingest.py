@@ -1,22 +1,26 @@
-import logging
 from dotenv import load_dotenv
-import os
-import requests
+
+import logging
 import json
-import time
+import os
 import pandas as pd
+import requests
+import time
 
 load_dotenv()
 
-data_dir = '/app/data/parquet_data'
+data_dir = './data'
+transformed_data_dir = os.path.join(data_dir, "json_data")
+if not os.path.exists(transformed_data_dir):
+    os.makedirs(transformed_data_dir)
 
-transformed_data_dir = 'app/data/json_data'
+def read_idx(file):
+    with open(file, "r") as f:
+        return int(f.read())
 
-def check_create_file(filename):
-    if not os.path.exists(filename):
-        os.makedirs(filename)
-        return True
-    return False
+def write_idx(file, idx):
+    with open(file, "w+") as f:
+        f.write(str(idx))
 
 def append_source(table, filename):
     logging.info(f"Appending Data {filename} to Airfold")
@@ -35,24 +39,43 @@ def append_source(table, filename):
         },
         json=data
     )
+    time.sleep(0.5)
+    if not str(res.status_code).startswith('2'):
+        logging.error(f"Data not appended for file {filename}")
 
-def ingest_data(file):
-    check_create_file(transformed_data_dir)
-
-    filename = os.path.join(data_dir, file)
-    data = pd.read_parquet(filename)
+def ingest_data(file, last_idx_file, part):
+    data = pd.read_csv(os.path.join(data_dir, file))
 
     step = 10000
     total_rows = data.shape[0]
+    if not os.path.exists(last_idx_file):
+        write_idx(last_idx_file, 0)
 
-    for idx, i in enumerate(range(0, total_rows, step)):
-        filepart = file.split(".")[0]
-        end_i = min(i + step, total_rows)
-        logging.info(f"Ingesting data part {idx} of {total_rows//step}")
-        new_data = data[i:end_i]
-        filename = os.path.join(transformed_data_dir, f"{filepart}_{idx+i}_{idx+end_i}.json")
-        new_data.to_json(filename, orient='records')
-        append_source("web_events", filename)
-        time.sleep(1)
+    start_idx = read_idx(last_idx_file)
+    avg_time = 0
+    sum_time = 0
 
-    
+    for idx, i in enumerate(range(start_idx, total_rows, step)):
+        batch_start_time = time.time()
+        try:
+            logging.info(f"Ingesting data part {idx} of {total_rows//step}")
+            new_data = data[i:i+step]
+            filename = os.path.join(transformed_data_dir, f"data_{part}_{i}_{i+step}.json")
+            new_data.to_json(filename, orient='records')
+            append_source("web_events", filename)
+            write_idx(last_idx_file, i)
+            os.remove(filename)
+            logging.info(f"Appended {filename} successfuly")
+            sum_time = sum_time+(time.time()-batch_start_time)
+            avg_time = sum_time/(idx+1)
+
+            logging.info(f"Average time for the batch {avg_time} seconds")
+            logging.info(f"Total time needed for current month {(avg_time)*(total_rows//step)} seconds")
+        except Exception as e:
+            logging.error(f"Error logging {file} at {i}")
+            logging.error(e)
+            write_idx(last_idx_file, i)
+            exit()
+
+if __name__=="__main__":
+    ingest_data()

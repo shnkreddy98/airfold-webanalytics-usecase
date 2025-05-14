@@ -3,9 +3,12 @@ cols:
   event_date: Date
   city: String
   device_type: String
+  no_of_sessions: UInt64
+  no_of_users: UInt64
+  no_of_new_users: UInt64
+  total_time_spent: Int64
   pageviews: UInt64
   conversions: UInt64
-  new_users: UInt64
 settings:
   engine: MergeTree()
   order_by: "`event_date`"

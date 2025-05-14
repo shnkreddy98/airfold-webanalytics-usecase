@@ -74,7 +74,7 @@ def generate_batch(n):
     while len(all_page_views) < pages_to_generate:
         # Create session attributes
         session_id = str(uuid.uuid4())
-        user_id = np.random.randint(1, 10_000_000)
+        user_id = np.random.randint(10_000_000, 20_000_000)
         
         # Session-level attributes
         referrer = np.random.choice(['google.com', 'facebook.com', 'twitter.com', 'direct', 'email'], p=[0.4, 0.2, 0.1, 0.2, 0.1])
@@ -85,7 +85,7 @@ def generate_batch(n):
         is_new_user = np.random.choice([0, 1], p=[0.7, 0.3])
         
         # Add conversion flag at session level
-        conversion_potential = np.random.choice([0, 1], p=[0.8, 0.2])
+        conversion_potential = np.random.choice([0, 1], p=[0.3, 0.7])
         
         # Generate reasonable number of pages per session (most sessions are short)
         pages_per_session_weights = [0.3, 0.25, 0.15, 0.1, 0.05, 0.05, 0.03, 0.03, 0.02, 0.02]

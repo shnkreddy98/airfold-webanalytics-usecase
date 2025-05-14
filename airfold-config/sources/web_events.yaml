@@ -18,4 +18,4 @@ cols:
   session_duration: Int32
 settings:
   engine: MergeTree()
-  order_by: "`session_id`"
+  order_by: "`timestamp`"

@@ -16,4 +16,4 @@ nodes:
 to: session_metrics
 refresh:
   strategy: replace
-  interval: EVERY 1 MINUTE
+  interval: EVERY 1 MONTH
