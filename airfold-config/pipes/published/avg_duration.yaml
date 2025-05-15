@@ -1,0 +1,16 @@
+name: avg_duration
+nodes:
+  - load:
+      sql: |
+        SELECT
+            AVG(duration) AS duration
+        FROM session_duration
+        WHERE date BETWEEN {{ start_date }} AND {{ end_date }}
+publish: avg_duration
+params:
+  - name: start_date
+    type: string
+    default: "2024-01-01"
+  - name: end_date
+    type: string
+    default: "2025-01-01"

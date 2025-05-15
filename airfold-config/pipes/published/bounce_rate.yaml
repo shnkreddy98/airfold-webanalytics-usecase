@@ -1,0 +1,29 @@
+name: bounce_rate
+nodes:
+  - load_bounce:
+      sql: |
+        SELECT
+          COUNT(DISTINCT session_id) AS bounces
+        FROM web_events we
+        JOIN session_duration sd
+        ON we.session_id=sd.session_id
+        WHERE is_landing_page=1
+        AND is_exit_page=1 AND duration<10
+        AND toDate(timestamp) BETWEEN {{ start_date }} AND {{ end_date }}
+  - calc_sessions:
+      sql: |
+        SELECT COUNT(DISTINCT session_id) AS total_sessions
+        FROM web_events
+        WHERE toDate(timestamp) BETWEEN {{ start_date }} AND {{ end_date }}
+  - calc_rate:
+      sql: |
+        SELECT (
+          SELECT bounces FROM load_bounce) / ( SELECT total_sessions FROM calc_sessions) * 100 AS result
+publish: bounce_rate
+params:
+  - name: start_date
+    type: string
+    default: "2024-01-01"
+  - name: end_date
+    type: string
+    default: "2025-01-01"

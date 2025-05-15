@@ -1,0 +1,9 @@
+name: session_duration
+cols:
+  user_id: Int64
+  session_id: String
+  date: Date
+  duration: UInt64
+settings:
+  engine: MergeTree()
+  order_by: "`session_id`"

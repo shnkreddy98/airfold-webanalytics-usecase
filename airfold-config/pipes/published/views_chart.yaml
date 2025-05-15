@@ -1,0 +1,18 @@
+name: views_chart
+nodes:
+  - metric_count:
+      sql: |
+        SELECT
+            date,
+            SUM(pageviews) AS views
+        FROM everyday_metrics
+        WHERE date BETWEEN {{ start_date }} AND {{ end_date }}
+        GROUP BY date
+publish: views_chart
+params:
+  - name: start_date
+    type: string
+    default: "2024-01-01"
+  - name: end_date
+    type: string
+    default: "2025-01-01"

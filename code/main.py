@@ -16,14 +16,14 @@ if __name__ == "__main__":
     last_idx_file = last_idx_file.format(part)
 
     if not os.path.exists(last_file):
-        write_idx(last_file, int(part)*25)
+        write_idx(last_file, int(part)*10)
 
     start_idx = read_idx(last_file)
 
-    for idx in range(start_idx, int(part)*25+24):
+    for idx in range(start_idx, int(part)*10+9):
         file = csv_files_fmt.format(idx)
         logging.info(f"Ingesting {file}")
         ingest_data(file, last_idx_file, part)
         logging.info("Data Ingested")
-        write_idx(last_file, idx)
+        write_idx(last_file, idx+1)
         write_idx(last_idx_file, 0)

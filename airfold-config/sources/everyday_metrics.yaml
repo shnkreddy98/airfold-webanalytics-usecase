@@ -1,0 +1,9 @@
+name: everyday_metrics
+cols:
+  date: Date
+  visitors: UInt64
+  pageviews: UInt64
+  sessions: UInt64
+settings:
+  engine: MergeTree()
+  order_by: "`date`"

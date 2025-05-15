@@ -4,10 +4,14 @@ import os
 import pandas as pd
 import random
 import uuid
+from datetime import datetime, timedelta
+from ingest import ingest_data
+import logging
+import time
+from logging_utils import setup_logging
 
 # Set constants
-num_rows = 40_000_000  # 100M rows
-batch_size = 1_000_000  # Process 1M rows at a time
+num_rows = np.random.randint(500, 1000)
 datadir = "data"
 if not os.path.exists(datadir):
     os.makedirs(datadir)
@@ -62,7 +66,7 @@ def generate_page_events(page):
     return events
 
 # Function to generate a sequence of pages for a session based on transition probabilities
-def generate_page_sequence(max_pages=10, min_pages=1):
+def generate_page_sequence(max_pages=10, min_pages=2):
     landing_weights = [0.4, 0.45, 0.15, 0.25, 0.35, 0.5, 0]
     current_page = random.choices(pages, weights=landing_weights)[0]
     
@@ -95,17 +99,20 @@ def generate_page_sequence(max_pages=10, min_pages=1):
     
     return page_sequence
 
-def generate_batch(n):
-    """Generate batch of n page views (not n sessions)"""
+def generate_data(n):
+    """Generate n page views (not n sessions) with current timestamp"""
     
-    # This approach creates page views incrementally to match batch_size
+    # This approach creates page views incrementally to match n
     all_page_views = []
     pages_to_generate = n
+    
+    # Get current timestamp
+    current_time = datetime.now()
     
     while len(all_page_views) < pages_to_generate:
         # Create session attributes
         session_id = str(uuid.uuid4())
-        user_id = np.random.randint(1, 10_000_000)
+        user_id = np.random.randint(1, 20_000_000)
         
         # Session-level attributes
         referrer = np.random.choice(['google.com', 'duckduckgo.com', 'bing.com', 'yahoo.com', 
@@ -136,16 +143,13 @@ def generate_batch(n):
         # Generate sequence of page views for this session
         page_sequence = generate_page_sequence(max_pages=max_pages)
         
-        # Basic session start time
-        session_start = pd.to_datetime(np.random.randint(
-            pd.Timestamp('2024-01-04').value // 10**9,
-            pd.Timestamp('2025-05-15').value // 10**9
-        ), unit='s')
+        # Basic session start time - using current time as base
+        session_start = current_time - timedelta(minutes=np.random.randint(0, 30))
         
         # Create page view records
         for i, page in enumerate(page_sequence):
             # Calculate timestamp for this page view
-            page_time = session_start + pd.Timedelta(seconds=int(np.random.exponential(30) * (i+1)))
+            page_time = session_start + timedelta(seconds=int(np.random.exponential(30) * (i+1)))
             
             # Determine if this is landing or exit page
             is_landing_page = (i == 0)
@@ -179,10 +183,10 @@ def generate_batch(n):
                 event_view = base_page_view.copy()
                 event_view['event'] = event
                 # Add a small time increment for each event (1-5 seconds after page view)
-                event_view['timestamp'] = page_time + pd.Timedelta(seconds=random.randint(1, 5))
+                event_view['timestamp'] = page_time + timedelta(seconds=random.randint(1, 5))
                 all_page_views.append(event_view)
             
-            # Stop if we've reached the target batch size
+            # Stop if we've reached the target size
             if len(all_page_views) >= pages_to_generate:
                 break
     
@@ -193,17 +197,21 @@ def generate_batch(n):
     return pd.DataFrame(final_page_views)
 
 if __name__ == "__main__":
+    log_file = setup_logging()
     fake = Faker()
     random.seed(42)
     np.random.seed(42)
     
-    # Write in chunks
-    for i in range(0, num_rows, batch_size):
-        batch = generate_batch(batch_size)
+    while True:
+        # Generate 10k rows
+        logging.info(f"Generating {num_rows} web events with current timestamp...")
+        data = generate_data(num_rows)
         
-        # Add option to write to Parquet if needed
-        # table = pa.Table.from_pandas(batch)
-        filename = os.path.join(datadir, f'web_events_{i//batch_size}.csv')
-        # pq.write_table(table, filename)
-        batch.to_csv(filename, index=False)
-        print(f'Wrote batch {i // batch_size + 1} of {num_rows // batch_size}')
+        file = f'web_events_current_{datetime.now().strftime("%Y%m%d_%H%M%S")}.csv'
+        # Save to file
+        filename = os.path.join(datadir, file)
+        data.to_csv(filename, index=False)
+        logging.info(f"Data saved to {filename}")
+
+        ingest_data(file, "./data/last_idx_file.txt", 0)
+        time.sleep(2)

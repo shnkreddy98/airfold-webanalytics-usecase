@@ -1,9 +1,0 @@
-name: page_funnels
-cols:
-  session_id: String
-  landing_page: String
-  exit_page: String
-  page_flow: Array(Int8)
-settings:
-  engine: MergeTree
-  order_by: "(`landing_page`, `exit_page`)"

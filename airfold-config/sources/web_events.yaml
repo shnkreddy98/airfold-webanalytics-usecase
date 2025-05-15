@@ -4,18 +4,15 @@ cols:
   session_id: String
   timestamp: DateTime
   page_url: String
-  page_sequence: Int8
   is_landing_page: Boolean
   is_exit_page: Boolean
-  referrer: Nullable(String)
-  campaign: Nullable(String)
-  duration: Int32
-  conversion_flag: Boolean
-  device_type: String
-  browser: String
-  city: String
+  referrer: LowCardinality(Nullable(String))
+  campaign: LowCardinality(Nullable(String))
+  device_type: LowCardinality(String)
+  browser: LowCardinality(String)
+  state: String
   is_new_user: Boolean
-  session_duration: Int32
+  event: Nullable(String)
 settings:
   engine: MergeTree()
-  order_by: "`timestamp`"
+  order_by: "`session_id`"

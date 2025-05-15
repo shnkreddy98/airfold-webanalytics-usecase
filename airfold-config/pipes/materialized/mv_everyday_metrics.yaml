@@ -1,0 +1,12 @@
+name: mv_everyday_metrics
+nodes:
+  - load:
+      sql: |
+        SELECT
+          toDate(timestamp) AS date,
+          COUNT(DISTINCT user_id) AS visitors,
+          COUNT(page_url) AS pageviews,
+          COUNT(DISTINCT session_id) AS sessions
+        FROM web_events
+        GROUP BY toDate(timestamp)
+to: everyday_metrics

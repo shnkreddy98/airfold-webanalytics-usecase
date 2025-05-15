@@ -46,8 +46,10 @@ def append_source(table, filename):
 def ingest_data(file, last_idx_file, part):
     data = pd.read_csv(os.path.join(data_dir, file))
 
+    # print(data)
     step = 10000
     total_rows = data.shape[0]
+
     if not os.path.exists(last_idx_file):
         write_idx(last_idx_file, 0)
 
@@ -58,7 +60,7 @@ def ingest_data(file, last_idx_file, part):
     for idx, i in enumerate(range(start_idx, total_rows, step)):
         batch_start_time = time.time()
         try:
-            logging.info(f"Ingesting data part {idx} of {total_rows//step}")
+            logging.info(f"Ingesting data part {i//10000} of {total_rows//step}")
             new_data = data[i:i+step]
             filename = os.path.join(transformed_data_dir, f"data_{part}_{i}_{i+step}.json")
             new_data.to_json(filename, orient='records')

@@ -1,0 +1,16 @@
+name: views_summary
+nodes:
+  - metric_summary:
+      sql: |
+        SELECT
+          SUM(pageviews) pageview_count
+        FROM everyday_metrics
+        WHERE date BETWEEN {{ start_date }} AND {{ end_date }}
+publish: views_summary
+params:
+  - name: start_date
+    type: string
+    default: "2024-01-01"
+  - name: end_date
+    type: string
+    default: "2024-01-01"
