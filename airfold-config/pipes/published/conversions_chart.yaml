@@ -1,0 +1,17 @@
+name: conversions_chart
+nodes:
+  - load_conversions:
+      sql: |
+        SELECT
+          COUNT(session_id)
+        FROM session_conversion
+        WHERE date BETWEEN {{ start_date }} AND {{ end_date }}
+        GROUP BY date
+publish: conversions_chart
+params:
+  - name: start_date
+    type: string
+    default: "2024-01-04"
+  - name: end_date
+    type: string
+    default: "2024-01-04"

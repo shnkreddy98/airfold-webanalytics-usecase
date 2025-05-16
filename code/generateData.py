@@ -6,8 +6,8 @@ import random
 import uuid
 
 # Set constants
-num_rows = 40_000_000  # 100M rows
-batch_size = 1_000_000  # Process 1M rows at a time
+num_rows = 10_000  # 100M rows
+batch_size = 10_000  # Process 1M rows at a time
 datadir = "data"
 if not os.path.exists(datadir):
     os.makedirs(datadir)
@@ -138,7 +138,7 @@ def generate_batch(n):
         
         # Basic session start time
         session_start = pd.to_datetime(np.random.randint(
-            pd.Timestamp('2024-01-04').value // 10**9,
+            pd.Timestamp('2025-05-14').value // 10**9,
             pd.Timestamp('2025-05-15').value // 10**9
         ), unit='s')
         

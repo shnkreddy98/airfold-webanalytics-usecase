@@ -1,0 +1,7 @@
+name: session_conversion
+cols:
+  date: Date
+  session_id: String
+settings:
+  engine: MergeTree()
+  order_by: "`date`"

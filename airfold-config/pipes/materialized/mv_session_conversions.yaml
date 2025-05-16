@@ -1,0 +1,13 @@
+name: mv_session_conversion
+nodes:
+  - load_conversions:
+      sql: |
+        SELECT
+          toDate(timestamp) as date,
+          session_id
+        FROM web_events
+        WHERE event='signup_complete'
+        OR event='complete_purchase'
+        OR event='form_submitted'
+        GROUP BY toDate(timestamp), session_id
+to: session_conversion

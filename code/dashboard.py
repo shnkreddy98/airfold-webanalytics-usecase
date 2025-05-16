@@ -3,8 +3,6 @@ from io import StringIO
 import os
 from dotenv import load_dotenv
 import pandas as pd
-import plotly.graph_objects as go
-import plotly.express as px
 import requests
 from datetime import datetime, date, timedelta
 
@@ -68,6 +66,26 @@ def format_number(num):
         return f'{round(num / 1_000, 1)} K'
     return str(num)
 
+def get_state_codes(df):
+    state_codes = {
+        'District of Columbia' : 'dc','Mississippi': 'MS', 'Oklahoma': 'OK', 
+        'Delaware': 'DE', 'Minnesota': 'MN', 'Illinois': 'IL', 'Arkansas': 'AR', 
+        'New Mexico': 'NM', 'Indiana': 'IN', 'Maryland': 'MD', 'Louisiana': 'LA', 
+        'Idaho': 'ID', 'Wyoming': 'WY', 'Tennessee': 'TN', 'Arizona': 'AZ', 
+        'Iowa': 'IA', 'Michigan': 'MI', 'Kansas': 'KS', 'Utah': 'UT', 
+        'Virginia': 'VA', 'Oregon': 'OR', 'Connecticut': 'CT', 'Montana': 'MT', 
+        'California': 'CA', 'Massachusetts': 'MA', 'West Virginia': 'WV', 
+        'South Carolina': 'SC', 'New Hampshire': 'NH', 'Wisconsin': 'WI',
+        'Vermont': 'VT', 'Georgia': 'GA', 'North Dakota': 'ND', 
+        'Pennsylvania': 'PA', 'Florida': 'FL', 'Alaska': 'AK', 'Kentucky': 'KY', 
+        'Hawaii': 'HI', 'Nebraska': 'NE', 'Missouri': 'MO', 'Ohio': 'OH', 
+        'Alabama': 'AL', 'Rhode Island': 'RI', 'South Dakota': 'SD', 
+        'Colorado': 'CO', 'New Jersey': 'NJ', 'Washington': 'WA', 
+        'North Carolina': 'NC', 'New York': 'NY', 'Texas': 'TX', 
+        'Nevada': 'NV', 'Maine': 'ME'}
+
+    df['state_code'] = df['state'].apply(lambda x : state_codes[x])
+    return df
 
 if __name__=="__main__":
     st.set_page_config(layout="wide")
@@ -107,9 +125,9 @@ if __name__=="__main__":
     
     elif interval=="CustomDateRange":
         start_date = st.date_input(label="Custom Date Range",
-                        value="2024-01-01",
+                        value="2024-01-04",
                         format="YYYY/MM/DD",
-                        min_value="2024-01-01",
+                        min_value="2024-01-0m",
                         max_value="today")
 
         end_date = st.date_input(label="Custom Date Range",
@@ -127,7 +145,6 @@ if __name__=="__main__":
     prev_params = params.format("start_date", date(current_year-2, current_month, current_day),
                                 "end_date", date(current_year-1, current_month, current_day-1))
 
-    col1, col2, col3, col4, col5 = st.columns(5)
     views_summary = get_data("views_summary",
                              metric_params)
     views_summary = pd.read_csv(StringIO(views_summary))
@@ -148,6 +165,10 @@ if __name__=="__main__":
                               metric_params)
     bounce_summary = pd.read_csv(StringIO(bounce_summary))
 
+    conversions_summary = get_data("conversion_rate",
+                                   metric_params)
+    conversions_summary = pd.read_csv(StringIO(conversions_summary))
+
     visitors_data = get_data("visitors_chart",
                             curr_params)
     visitors_data = pd.read_csv(StringIO(visitors_data))
@@ -160,12 +181,14 @@ if __name__=="__main__":
                             curr_params)
     sessions_data = pd.read_csv(StringIO(sessions_data))
 
-    visitors = format_number(views_summary['pageview_count'].values[0])
-    page_views = format_number(visitors_summary['visitor_count'].values[0])
+    page_views = format_number(views_summary['pageview_count'].values[0])
+    visitors = format_number(visitors_summary['visitor_count'].values[0])
     sessions = format_number(sessions_summary['session_count'].values[0])
     duration = str(round(duration_summary['duration'].values[0], 2))+" S"
     bounce = str(round(bounce_summary['result'].values[0], 2))+" %"
+    conversion = str(round(conversions_summary['result'].values[0], 2))+" %"
 
+    col1, col2, col3, col4, col5, col6 = st.columns(6)
     # try:
     with col1:
         display_metrics("Page Views", page_views)
@@ -177,6 +200,8 @@ if __name__=="__main__":
         display_metrics("Session Duration", duration)
     with col5:
         display_metrics("Bounce Rate", bounce)
+    with col6:
+        display_metrics("Conversion Rate", conversion)
     
     visitors_tab, views_tab, sessions_tab = st.tabs(["Visitors", "Views", "Sessions"])
     
