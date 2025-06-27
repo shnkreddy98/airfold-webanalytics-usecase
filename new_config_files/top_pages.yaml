@@ -1,0 +1,19 @@
+version: clickhouse.airfold.co/v1
+type: Pipe
+description: ''
+nodes:
+  - node1:
+      sql: |-
+        SELECT
+            page_url,
+            count() AS total_visits,
+            uniqExact(user_id) AS unique_visitors
+        FROM web_events
+        WHERE event_type = 'page_view'
+        GROUP BY page_url
+refresh:
+  strategy: replace
+  interval: EVERY 5 MINUTES
+  refresh_on_create: true
+  disabled: false
+to: top_pages_mv

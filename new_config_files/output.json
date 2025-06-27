@@ -1,0 +1,332 @@
+{
+  "sources": [
+    {
+      "id": "af2f3b0e21c1f0439292848ae56365501c",
+      "type": "source",
+      "data": {
+        "id": "af2f3b0e21c1f0439292848ae56365501c",
+        "name": "metrics_pd_mv",
+        "kind": "Table",
+        "metadata": {
+          "created_at": "2025-05-29T21:23:08.926476+00:00",
+          "updated_at": "2025-05-29T21:41:32.459059+00:00"
+        },
+        "cols": {
+          "date": "Nullable(Date)",
+          "total_events": "AggregateFunction(count, Int32)",
+          "signups": "AggregateFunction(countIf, Nullable(UInt8))",
+          "purchases": "AggregateFunction(countIf, Nullable(UInt8))",
+          "page_views": "AggregateFunction(countIf, Nullable(UInt8))"
+        },
+        "settings": "AggregatingMergeTree() ORDER BY tuple()"
+      }
+    },
+    {
+      "id": "af2d62aa77a6f14921898bbee4a7c95161",
+      "type": "source",
+      "data": {
+        "id": "af2d62aa77a6f14921898bbee4a7c95161",
+        "name": "top_pages_mv",
+        "kind": "Table",
+        "metadata": {
+          "created_at": "2025-05-29T21:29:15.203311+00:00",
+          "updated_at": "2025-05-29T21:51:34.288590+00:00"
+        },
+        "cols": {
+          "page_url": "Nullable(String)",
+          "total_visits": "UInt64",
+          "unique_visitors": "UInt64"
+        },
+        "settings": "MergeTree() ORDER BY (`total_visits`, `unique_visitors`)"
+      }
+    },
+    {
+      "id": "af9b4f7430ae5a450e9155aab6e2a3ebb1",
+      "type": "source",
+      "data": {
+        "id": "af9b4f7430ae5a450e9155aab6e2a3ebb1",
+        "name": "users",
+        "kind": "PostgresCDCTable",
+        "slot": "airfold",
+        "metadata": {
+          "created_at": "2025-05-29T18:34:57.057955+00:00",
+          "updated_at": "2025-05-29T18:34:57.086237+00:00"
+        },
+        "table": "users",
+        "cols": {
+          "id": "Int32",
+          "name": "String",
+          "email": "String",
+          "age": "Nullable(Int32)",
+          "created_at": "Nullable(DateTime64(6))"
+        },
+        "settings": "ReplacingMergeTree PRIMARY KEY (`id`) ORDER BY (`id`)",
+        "toast_cols": [],
+        "secret": "secret_postgres_kw6g8d7nos",
+        "db_schema": "public",
+        "strategy": "append",
+        "publication": "airfold"
+      }
+    },
+    {
+      "id": "af66b2b0f4bfbb43e0b402970dfbf9e7dc",
+      "type": "source",
+      "data": {
+        "id": "af66b2b0f4bfbb43e0b402970dfbf9e7dc",
+        "name": "web_events",
+        "kind": "PostgresCDCTable",
+        "slot": "airfold",
+        "metadata": {
+          "created_at": "2025-05-29T18:33:38.720651+00:00",
+          "updated_at": "2025-05-29T18:33:38.795536+00:00"
+        },
+        "table": "web_events",
+        "cols": {
+          "event_id": "Int32",
+          "user_id": "Nullable(Int32)",
+          "event_type": "Nullable(String)",
+          "page_url": "Nullable(String)",
+          "timestamp": "Nullable(DateTime64(6))",
+          "referrer": "Nullable(String)"
+        },
+        "settings": "ReplacingMergeTree PRIMARY KEY (`event_id`) ORDER BY (`event_id`)",
+        "toast_cols": [],
+        "secret": "secret_postgres_kw6g8d7nos",
+        "db_schema": "public",
+        "strategy": "append",
+        "publication": "airfold"
+      }
+    }
+  ],
+  "pipes": [
+    {
+      "id": "afc33de17d4b5f48e5b4189aa161827a6b",
+      "type": "pipe",
+      "data": {
+        "id": "afc33de17d4b5f48e5b4189aa161827a6b",
+        "name": "metrics_pd",
+        "kind": "PipeEntry",
+        "nodes": [
+          "afdd44bb740ea746818c3d083ed296600c"
+        ],
+        "edges": [
+          {
+            "id": "af516e1aaac6234be6adec0ccaad854f44",
+            "source": "af66b2b0f4bfbb43e0b402970dfbf9e7dc",
+            "target": "afdd44bb740ea746818c3d083ed296600c",
+            "data": {
+              "sourceName": "web_events",
+              "targetName": "node1",
+              "type": "from_source"
+            }
+          },
+          {
+            "id": "afdf3092838eb5452eb4a2f8a7fa95f67c",
+            "source": "afdd44bb740ea746818c3d083ed296600c",
+            "target": "af2f3b0e21c1f0439292848ae56365501c",
+            "data": {
+              "sourceName": "node1",
+              "targetName": "metrics_pd_mv",
+              "type": "to_source"
+            }
+          }
+        ],
+        "metadata": {
+          "created_at": "2025-05-29T21:22:21.058817+00:00",
+          "updated_at": "2025-05-29T21:41:32.699760+00:00"
+        },
+        "refreshable": false,
+        "children": [
+          {
+            "id": "afdd44bb740ea746818c3d083ed296600c",
+            "type": "node",
+            "data": {
+              "id": "afdd44bb740ea746818c3d083ed296600c",
+              "name": "node1",
+              "kind": "NodeEntry",
+              "materialize": "table",
+              "cols": {
+                "date": "Nullable(Date)",
+                "total_events": "AggregateFunction(count, Int32)",
+                "signups": "AggregateFunction(countIf, Nullable(UInt8))",
+                "purchases": "AggregateFunction(countIf, Nullable(UInt8))",
+                "page_views": "AggregateFunction(countIf, Nullable(UInt8))"
+              },
+              "sql": "SELECT\n  toDate(timestamp) AS date,\n  countState(event_id) AS total_events,\n  countIfState(event_type = 'signup') AS signups,\n  countIfState(event_type = 'purchase') AS purchases,\n  countIfState(event_type = 'page_view') AS page_views\nFROM web_events\nGROUP BY\n  date"
+            }
+          }
+        ],
+        "to": "metrics_pd_mv",
+        "last_node": 0,
+        "description": ""
+      }
+    },
+    {
+      "id": "af26216282ed0c4216af3418a6f2fa51c2",
+      "type": "pipe",
+      "data": {
+        "id": "af26216282ed0c4216af3418a6f2fa51c2",
+        "name": "top_pages",
+        "kind": "PipeEntry",
+        "nodes": [
+          "af2be73feb1c3846969458926dfdd320cf"
+        ],
+        "edges": [
+          {
+            "id": "afe76e48c41da1496698e7d2cf438c5a00",
+            "source": "af66b2b0f4bfbb43e0b402970dfbf9e7dc",
+            "target": "af2be73feb1c3846969458926dfdd320cf",
+            "data": {
+              "sourceName": "web_events",
+              "targetName": "node1",
+              "type": "from_source"
+            }
+          },
+          {
+            "id": "af18edbb43a5a14fccb2102bfc1405f3c3",
+            "source": "af2be73feb1c3846969458926dfdd320cf",
+            "target": "af2d62aa77a6f14921898bbee4a7c95161",
+            "data": {
+              "sourceName": "node1",
+              "targetName": "top_pages_mv",
+              "type": "to_source"
+            }
+          }
+        ],
+        "metadata": {
+          "created_at": "2025-05-29T21:28:32.177156+00:00",
+          "updated_at": "2025-05-29T21:51:34.386515+00:00"
+        },
+        "refresh": {
+          "strategy": "replace",
+          "interval": "EVERY 5 MINUTES",
+          "refresh_on_create": true,
+          "settings": null,
+          "disabled": false
+        },
+        "refreshable": true,
+        "children": [
+          {
+            "id": "af2be73feb1c3846969458926dfdd320cf",
+            "type": "node",
+            "data": {
+              "id": "af2be73feb1c3846969458926dfdd320cf",
+              "name": "node1",
+              "kind": "NodeEntry",
+              "materialize": "refresh_table",
+              "cols": {
+                "page_url": "Nullable(String)",
+                "total_visits": "UInt64",
+                "unique_visitors": "UInt64"
+              },
+              "sql": "SELECT\n    page_url,\n    count() AS total_visits,\n    uniqExact(user_id) AS unique_visitors\nFROM web_events\nWHERE event_type = 'page_view'\nGROUP BY page_url"
+            }
+          }
+        ],
+        "to": "top_pages_mv",
+        "last_node": 0,
+        "description": ""
+      }
+    },
+    {
+      "id": "af84a70367ece54623ad8fc5e6a63c1d6b",
+      "type": "pipe",
+      "data": {
+        "id": "af84a70367ece54623ad8fc5e6a63c1d6b",
+        "name": "top_referrers",
+        "kind": "PipeEntry",
+        "nodes": [
+          "af6b65d559d0234825891cddf669eb7bba"
+        ],
+        "edges": [
+          {
+            "id": "af2336259723c34e33b446b99c85e3be50",
+            "source": "af66b2b0f4bfbb43e0b402970dfbf9e7dc",
+            "target": "af6b65d559d0234825891cddf669eb7bba",
+            "data": {
+              "sourceName": "web_events",
+              "targetName": "node1",
+              "type": "from_source"
+            }
+          }
+        ],
+        "metadata": {
+          "created_at": "2025-05-29T18:44:43.232110+00:00",
+          "updated_at": "2025-05-29T20:36:17.701415+00:00"
+        },
+        "children": [
+          {
+            "id": "af6b65d559d0234825891cddf669eb7bba",
+            "type": "node",
+            "data": {
+              "id": "af6b65d559d0234825891cddf669eb7bba",
+              "name": "node1",
+              "kind": "NodeEntry",
+              "materialize": "view",
+              "cols": {
+                "date": "Nullable(DateTime)",
+                "converted": "AggregateFunction(countIf, Nullable(UInt8))"
+              },
+              "sql": "SELECT\n  toStartOfDay(timestamp) AS date,\n  countIfState(event_type='purchase') AS converted\nFROM web_events\nGROUP BY date"
+            }
+          }
+        ],
+        "last_node": 0,
+        "description": ""
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "af7807ee6afa8540bb854aa607b4ed1f77",
+      "source": "af66b2b0f4bfbb43e0b402970dfbf9e7dc",
+      "target": "afc33de17d4b5f48e5b4189aa161827a6b",
+      "data": {
+        "sourceName": "web_events",
+        "targetName": "metrics_pd",
+        "type": "from_source"
+      }
+    },
+    {
+      "id": "af2dd25a4e7f35425b85f00d48dc3361c2",
+      "source": "afc33de17d4b5f48e5b4189aa161827a6b",
+      "target": "af2f3b0e21c1f0439292848ae56365501c",
+      "data": {
+        "sourceName": "metrics_pd",
+        "targetName": "metrics_pd_mv",
+        "type": "to_source"
+      }
+    },
+    {
+      "id": "afc916f30937424dbe8de464f1af45d0e6",
+      "source": "af66b2b0f4bfbb43e0b402970dfbf9e7dc",
+      "target": "af26216282ed0c4216af3418a6f2fa51c2",
+      "data": {
+        "sourceName": "web_events",
+        "targetName": "top_pages",
+        "type": "from_source"
+      }
+    },
+    {
+      "id": "af134ca45e3d0343c1a4669a346b1cf9e9",
+      "source": "af26216282ed0c4216af3418a6f2fa51c2",
+      "target": "af2d62aa77a6f14921898bbee4a7c95161",
+      "data": {
+        "sourceName": "top_pages",
+        "targetName": "top_pages_mv",
+        "type": "to_source"
+      }
+    },
+    {
+      "id": "afcd7734e773b849ff8913b0490f4bc461",
+      "source": "af66b2b0f4bfbb43e0b402970dfbf9e7dc",
+      "target": "af84a70367ece54623ad8fc5e6a63c1d6b",
+      "data": {
+        "sourceName": "web_events",
+        "targetName": "top_referrers",
+        "type": "from_source"
+      }
+    }
+  ],
+  "groups": []
+}

@@ -1,0 +1,7 @@
+version: clickhouse.airfold.co/v1
+type: Table
+cols:
+  page_url: Nullable(String)
+  total_visits: UInt64
+  unique_visitors: UInt64
+settings: MergeTree() ORDER BY (`total_visits`, `unique_visitors`)

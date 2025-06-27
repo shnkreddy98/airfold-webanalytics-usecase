@@ -1,0 +1,17 @@
+version: clickhouse.airfold.co/v1
+type: PostgresCDCTable
+cols:
+  event_id: Int32
+  user_id: Nullable(Int32)
+  event_type: Nullable(String)
+  page_url: Nullable(String)
+  timestamp: Nullable(DateTime64(6))
+  referrer: Nullable(String)
+postgres_cdc:
+  secret: secret_postgres_kw6g8d7nos
+  table: web_events
+  strategy: append
+  schema: public
+  publication: airfold
+  slot: airfold
+settings: ReplacingMergeTree PRIMARY KEY (`event_id`) ORDER BY (`event_id`)

@@ -1,0 +1,11 @@
+version: clickhouse.airfold.co/v1
+type: Pipe
+description: ''
+nodes:
+  - node1:
+      sql: |-
+        SELECT
+          toStartOfDay(timestamp) AS date,
+          countIfState(event_type='purchase') AS converted
+        FROM web_events
+        GROUP BY date

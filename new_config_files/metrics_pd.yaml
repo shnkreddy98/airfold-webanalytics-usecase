@@ -1,0 +1,16 @@
+version: clickhouse.airfold.co/v1
+type: Pipe
+description: ''
+nodes:
+  - node1:
+      sql: |-
+        SELECT
+          toDate(timestamp) AS date,
+          countState(event_id) AS total_events,
+          countIfState(event_type = 'signup') AS signups,
+          countIfState(event_type = 'purchase') AS purchases,
+          countIfState(event_type = 'page_view') AS page_views
+        FROM web_events
+        GROUP BY
+          date
+to: metrics_pd_mv

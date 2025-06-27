@@ -3,6 +3,7 @@ from io import StringIO
 import os
 from dotenv import load_dotenv
 import pandas as pd
+import plotly.express as px
 import requests
 from datetime import datetime, date, timedelta
 
@@ -87,6 +88,23 @@ def get_state_codes(df):
     df['state_code'] = df['state'].apply(lambda x : state_codes[x])
     return df
 
+def make_choropleth(input_df, input_id, input_column, input_color_theme='blues'):
+    choropleth = px.choropleth(input_df, locations=input_id, color=input_column, locationmode="USA-states",
+                               color_continuous_scale=input_color_theme,
+                            #    range_color=(0, max(df_selected_year.population)),
+                               scope="usa",
+                               labels={'population':'Population'}
+                              )
+    choropleth.update_layout(
+        template='plotly_dark',
+        plot_bgcolor='rgba(0, 0, 0, 0)',
+        paper_bgcolor='rgba(0, 0, 0, 0)',
+        margin=dict(l=0, r=0, t=0, b=0),
+        height=350
+    )
+    return choropleth
+
+
 if __name__=="__main__":
     st.set_page_config(layout="wide")
 
@@ -127,7 +145,7 @@ if __name__=="__main__":
         start_date = st.date_input(label="Custom Date Range",
                         value="2024-01-04",
                         format="YYYY/MM/DD",
-                        min_value="2024-01-0m",
+                        min_value="2024-01-04",
                         max_value="today")
 
         end_date = st.date_input(label="Custom Date Range",
@@ -148,26 +166,32 @@ if __name__=="__main__":
     views_summary = get_data("views_summary",
                              metric_params)
     views_summary = pd.read_csv(StringIO(views_summary))
+    page_views = format_number(views_summary['pageview_count'].values[0])
 
     visitors_summary = get_data("visitors_summary",
                              metric_params)
     visitors_summary = pd.read_csv(StringIO(visitors_summary))
+    visitors = format_number(visitors_summary['visitor_count'].values[0])
 
     sessions_summary = get_data("sessions_summary",
                              metric_params)
     sessions_summary = pd.read_csv(StringIO(sessions_summary))
+    sessions = format_number(sessions_summary['session_count'].values[0])
 
     duration_summary = get_data("avg_duration",
                                 metric_params)
     duration_summary = pd.read_csv(StringIO(duration_summary))
+    duration = str(round(duration_summary['duration'].values[0], 2))+" S"
 
     bounce_summary = get_data("bounce_rate",
                               metric_params)
     bounce_summary = pd.read_csv(StringIO(bounce_summary))
+    bounce = str(round(bounce_summary['result'].values[0], 2))+" %"
 
     conversions_summary = get_data("conversion_rate",
                                    metric_params)
     conversions_summary = pd.read_csv(StringIO(conversions_summary))
+    conversion = str(round(conversions_summary['result'].values[0], 2))+" %"
 
     visitors_data = get_data("visitors_chart",
                             curr_params)
@@ -181,12 +205,21 @@ if __name__=="__main__":
                             curr_params)
     sessions_data = pd.read_csv(StringIO(sessions_data))
 
-    page_views = format_number(views_summary['pageview_count'].values[0])
-    visitors = format_number(visitors_summary['visitor_count'].values[0])
-    sessions = format_number(sessions_summary['session_count'].values[0])
-    duration = str(round(duration_summary['duration'].values[0], 2))+" S"
-    bounce = str(round(bounce_summary['result'].values[0], 2))+" %"
-    conversion = str(round(conversions_summary['result'].values[0], 2))+" %"
+    visitors_by_state = get_data("visitors_by_state",
+                                 curr_params)
+    visitors_by_state = pd.read_csv(StringIO(visitors_by_state))
+    sessions_by_state = get_state_codes(visitors_by_state)
+
+    views_by_state = get_data("views_by_state",
+                                 curr_params)
+    views_by_state = pd.read_csv(StringIO(views_by_state))
+    views_by_state = get_state_codes(views_by_state)
+
+    sessions_by_state = get_data("sessions_by_state",
+                                 curr_params)
+    sessions_by_state = pd.read_csv(StringIO(sessions_by_state))
+    sessions_by_state = get_state_codes(sessions_by_state)
+
 
     col1, col2, col3, col4, col5, col6 = st.columns(6)
     # try:
@@ -205,12 +238,22 @@ if __name__=="__main__":
     
     visitors_tab, views_tab, sessions_tab = st.tabs(["Visitors", "Views", "Sessions"])
     
-    visitors_tab.subheader("Visitors Line Chart")
-    visitors_tab.line_chart(visitors_data, x='date', y='visitors')
+    with visitors_tab:
+        st.subheader("Visitors Line Chart")
+        st.line_chart(visitors_data, x='date', y='visitors')
+        visitors_choropleth = make_choropleth(visitors_by_state, 'state_code', 'total_visitors')
+        st.plotly_chart(visitors_choropleth, use_container_width=True)
 
-    views_tab.subheader("Views Line Chart")
-    views_tab.line_chart(views_data, x='date', y='views')
+    with views_tab:
+        st.subheader("Views Line Chart")
+        st.line_chart(views_data, x='date', y='views')
+        views_choropleth = make_choropleth(views_by_state, 'state_code', 'total_pageviews')
+        st.plotly_chart(views_choropleth, use_container_width=True)
 
-    sessions_tab.subheader("Sessions Line Chart")
-    sessions_tab.line_chart(sessions_data, x='date', y='sessions')
+    with sessions_tab:
+        st.subheader("Sessions Line Chart")
+        st.line_chart(sessions_data, x='date', y='sessions')
+        sessions_choropleth = make_choropleth(sessions_by_state, 'state_code', 'total_sessions')
+        st.plotly_chart(sessions_choropleth, use_container_width=True)
 
+    

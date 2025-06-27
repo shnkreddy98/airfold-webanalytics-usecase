@@ -1,0 +1,16 @@
+version: clickhouse.airfold.co/v1
+type: PostgresCDCTable
+cols:
+  id: Int32
+  name: String
+  email: String
+  age: Nullable(Int32)
+  created_at: Nullable(DateTime64(6))
+postgres_cdc:
+  secret: secret_postgres_kw6g8d7nos
+  table: users
+  strategy: append
+  schema: public
+  publication: airfold
+  slot: airfold
+settings: ReplacingMergeTree PRIMARY KEY (`id`) ORDER BY (`id`)

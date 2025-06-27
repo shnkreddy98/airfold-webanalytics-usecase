@@ -1,6 +1,10 @@
-name: everyday_metrics
+name: everyday_metrics_temp
 cols:
   date: Date
+  state: String
+  campaign: String
+  device_type: String
+  browser: String
   visitors: UInt64
   pageviews: UInt64
   sessions: UInt64

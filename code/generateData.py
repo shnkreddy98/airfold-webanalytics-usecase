@@ -95,6 +95,11 @@ def generate_page_sequence(max_pages=10, min_pages=1):
     
     return page_sequence
 
+def random_probabilities(n):
+    probabilities = [random.random() for _ in range(n)]
+    total = sum(probabilities)
+    return [p / total for p in probabilities]
+
 def generate_batch(n):
     """Generate batch of n page views (not n sessions)"""
     
@@ -106,7 +111,7 @@ def generate_batch(n):
         # Create session attributes
         session_id = str(uuid.uuid4())
         user_id = np.random.randint(1, 10_000_000)
-        
+
         # Session-level attributes
         referrer = np.random.choice(['google.com', 'duckduckgo.com', 'bing.com', 'yahoo.com', 
                                      'brave', 'instagram.com', 'youtube.com', 'facebook.com',
@@ -117,16 +122,19 @@ def generate_batch(n):
         device_type = np.random.choice(['mobile', 'desktop', 'tablet'], p=[0.55, 0.35, 0.1])
         browser = np.random.choice(['Chrome', 'Firefox', 'Safari', 'Edge', 'Opera'], p=[0.6, 0.15, 0.2, 0.04, 0.01])
 
-        state = np.random.choice(["Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", 
-                                  "Connecticut", "Delaware", "Florida", "Georgia", "Hawaii", "Idaho", 
-                                  "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky", "Louisiana", 
-                                  "Maine", "Maryland", "Massachusetts", "Michigan", "Minnesota", 
-                                  "Mississippi", "Missouri", "Montana", "Nebraska", "Nevada", 
-                                  "New Hampshire", "New Jersey", "New Mexico", "New York", 
-                                  "North Carolina", "North Dakota", "Ohio", "Oklahoma", "Oregon", 
-                                  "Pennsylvania", "Rhode Island", "South Carolina", "South Dakota", 
-                                  "Tennessee", "Texas", "Utah", "Vermont", "Virginia", "Washington", 
-                                  "West Virginia", "Wisconsin", "Wyoming"])
+        states = ["Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", 
+                  "Connecticut", "Delaware", "Florida", "Georgia", "Hawaii", "Idaho", 
+                  "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky", "Louisiana", 
+                  "Maine", "Maryland", "Massachusetts", "Michigan", "Minnesota", 
+                  "Mississippi", "Missouri", "Montana", "Nebraska", "Nevada", 
+                  "New Hampshire", "New Jersey", "New Mexico", "New York", 
+                  "North Carolina", "North Dakota", "Ohio", "Oklahoma", "Oregon", 
+                  "Pennsylvania", "Rhode Island", "South Carolina", "South Dakota", 
+                  "Tennessee", "Texas", "Utah", "Vermont", "Virginia", "Washington", 
+                  "West Virginia", "Wisconsin", "Wyoming"]
+        state_rand_p = random_probabilities(len(states))
+        state = np.random.choice(states, p=state_rand_p)
+
         is_new_user = np.random.choice([0, 1], p=[0.7, 0.3])
         
         # Generate reasonable number of pages per session (most sessions are short)

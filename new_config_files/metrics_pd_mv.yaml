@@ -1,0 +1,9 @@
+version: clickhouse.airfold.co/v1
+type: Table
+cols:
+  date: Nullable(Date)
+  total_events: AggregateFunction(count, Int32)
+  signups: AggregateFunction(countIf, Nullable(UInt8))
+  purchases: AggregateFunction(countIf, Nullable(UInt8))
+  page_views: AggregateFunction(countIf, Nullable(UInt8))
+settings: AggregatingMergeTree() ORDER BY tuple()

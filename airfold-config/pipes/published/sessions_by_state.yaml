@@ -1,16 +1,18 @@
-name: views_summary
+name: sessions_by_state
 nodes:
-  - metric_summary:
+  - load:
       sql: |
         SELECT
-          SUM(pageviews) AS pageview_count
+          state,
+          SUM(sessions) AS total_sessions
         FROM everyday_metrics
         WHERE date BETWEEN {{ start_date }} AND {{ end_date }}
-publish: views_summary
+        GROUP BY state
+publish: sessions_by_state
 params:
   - name: start_date
     type: string
     default: "2024-01-01"
   - name: end_date
     type: string
-    default: "2024-01-01"
+    default: "2025-01-01"

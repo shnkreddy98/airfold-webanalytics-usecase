@@ -4,9 +4,10 @@ nodes:
       sql: |
         SELECT
           toDate(timestamp) AS date,
+          state,
           COUNT(DISTINCT user_id) AS visitors,
           COUNT(page_url) AS pageviews,
           COUNT(DISTINCT session_id) AS sessions
         FROM web_events
-        GROUP BY toDate(timestamp)
+        GROUP BY toDate(timestamp), state
 to: everyday_metrics

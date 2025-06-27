@@ -1,0 +1,10 @@
+version: clickhouse.airfold.co/v1
+type: Table
+cols:
+  event_id: Int64
+  user_id: Int64
+  event_type: String
+  page_url: String
+  timestamp: DateTime
+  referrer: String
+settings: MergeTree() PARTITION BY toYYYYMM(timestamp) ORDER BY `event_id`
